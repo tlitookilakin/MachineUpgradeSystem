@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<EnableHarmony>true</EnableHarmony>
+		<LangVersion>Latest</LangVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<Version>1.0.0</Version>
+		<Authors>tlitookilakin</Authors>
+		<Name>Machine Upgrade System</Name>
+		<UniqueID>tlitookilakin.mus</UniqueID>
+		<Description>A framework to allow drop-in upgrades for machines</Description>
+		<UpdateKeys></UpdateKeys>
+		<MinimumGameVersion_Behavior>Update</MinimumGameVersion_Behavior>
+		<MinimumApiVersion_Behavior>Update</MinimumApiVersion_Behavior>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Leclair.Stardew.ModManifestBuilder" Version="2.3.1" />
+		<PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.1.1" />
+		<Reference Include="Newtonsoft.Json" HintPath="$(GamePath)\smapi-internal\Newtonsoft.Json.dll" private="false" />
+	</ItemGroup>
+
+</Project>

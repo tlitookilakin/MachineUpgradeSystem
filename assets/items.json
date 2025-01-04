@@ -1,0 +1,32 @@
+﻿{
+	"steelUpgrade": {
+		"Name": "Steel Upgrade",
+		"Price": 200,
+		"SpriteIndex": 0
+	},
+	"goldUpgrade": {
+		"Name": "Gold Upgrade",
+		"Price": 400,
+		"SpriteIndex": 1
+	},
+	"diamondUpgrade": {
+		"Name": "Diamond Upgrade",
+		"Price": 1000,
+		"SpriteIndex": 2
+	},
+	"iridiumUpgrade": {
+		"Name": "Iridium Upgrade",
+		"Price": 1500,
+		"SpriteIndex": 3
+	},
+	"radioactiveUpgrade": {
+		"Name": "Radioactive Upgrade",
+		"Price": 4500,
+		"SpriteIndex": 4
+	},
+	"prismaticUpgrade": {
+		"Name": "Prismatic Upgrade",
+		"Price": 3000,
+		"SpriteIndex": 5
+	}
+}

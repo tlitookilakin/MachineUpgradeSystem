@@ -1,0 +1,14 @@
+﻿{
+  "item.steelUpgrade.name": "Steel Upgrade",
+  "item.steelUpgrade.desc": "Upgrades basic machines to steel tier.",
+  "item.goldUpgrade.name": "Gold Upgrade",
+  "item.goldUpgrade.desc": "Upgrades steel machines to gold tier.",
+  "item.diamondUpgrade.name": "Diamond Upgrade",
+  "item.diamondUpgrade.desc": "Upgrades gold machines to diamond tier.",
+  "item.iridiumUpgrade.name": "Iridium Upgrade",
+  "item.iridiumUpgrade.desc": "Upgrades diamond machines to iridium tier.",
+  "item.radioactiveUpgrade.name": "Radioactive Upgrade",
+  "item.radioactiveUpgrade.desc": "Upgrades iridium machines to radioactive tier.",
+  "item.prismaticUpgrade.name": "Prismatic Upgrade",
+  "item.prismaticUpgrade.desc": "Upgrades radioactive machines to prismatic tier."
+}
