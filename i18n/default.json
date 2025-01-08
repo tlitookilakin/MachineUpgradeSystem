@@ -10,5 +10,8 @@
   "item.radioactiveUpgrade.name": "Radioactive Upgrade",
   "item.radioactiveUpgrade.desc": "Upgrades iridium machines to radioactive tier.",
   "item.prismaticUpgrade.name": "Prismatic Upgrade",
-  "item.prismaticUpgrade.desc": "Upgrades radioactive machines to prismatic tier."
+  "item.prismaticUpgrade.desc": "Upgrades radioactive machines to prismatic tier.",
+  "cfg.itemid.name": "Ingredient Item",
+  "cfg.inputcount.name": "Ingredient Count",
+  "cfg.outputcount.name": "Crafted Count"
 }

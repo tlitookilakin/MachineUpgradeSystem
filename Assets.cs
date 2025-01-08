@@ -98,20 +98,13 @@ namespace MachineUpgradeSystem
 				return;
 			}
 
-			recipeRequirements ??= ReadJson<Dictionary<string, string>>("assets", "recipes.json");
-			if (recipeRequirements is null)
-				return;
-
-			// TODO replace with config
-			int count = 1;
-
-			foreach ((var item, var resource) in recipeRequirements)
-				recipes[prefix + item] = $"{resource} {count}/Field/{prefix + item}/false/default/";
+			foreach ((var tier, var ingredient) in Config.config.Recipes)
+				recipes[prefix + tier] = $"{ingredient.ItemId} {ingredient.Count}/Field/{prefix + tier} {ingredient.ResultCount}/false/default/";
 		}
 
 		private static T ReadJson<T>(params string[] path) where T : notnull
 		{
-			var file = Path.Join([Helper.DirectoryPath, .. path]);
+			var file = Path.Join(path);
 			return Helper.ModContent.Load<T>(file);
 		}
 	}

@@ -17,6 +17,7 @@ namespace MachineUpgradeSystem
 
 		public override void Entry(IModHelper helper)
 		{
+			Config.Init(helper, ModManifest);
 			Assets.Init(helper, Monitor);
 			
 			try
