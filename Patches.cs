@@ -1,7 +1,10 @@
 ﻿using HarmonyLib;
 using StardewModdingAPI;
 using StardewValley;
+using StardewValley.Extensions;
+using StardewValley.Menus;
 using StardewValley.Objects;
+using System.Reflection.Emit;
 using SObject = StardewValley.Object;
 
 namespace MachineUpgradeSystem
@@ -24,6 +27,10 @@ namespace MachineUpgradeSystem
 				typeof(CrabPot).GetMethod(nameof(CrabPot.performObjectDropInAction)),
 				prefix: new(typeof(Patches), nameof(TryDropInUpgrade))
 			);
+			harmony.Patch(
+				typeof(InventoryMenu).GetMethod(nameof(InventoryMenu.rightClick)),
+				transpiler: new(typeof(Patches), nameof(InjectInventoryUpgrade))
+			);
 		}
 
 		public static bool TryDropInUpgrade(ref bool __result, SObject __instance, Item dropInItem, bool probe)
@@ -36,16 +43,6 @@ namespace MachineUpgradeSystem
 			if (!entries.TryGetValue(__instance.ItemId, out var convertTo))
 				return true;
 
-			// currently processing
-			/*
-			if (__instance.MinutesUntilReady > 0)
-			{
-				var machine = __instance.GetMachineData();
-				if (machine is null || !machine.AllowLoadWhenFull)
-					return true;
-			}
-			*/
-
 			__result = true;
 
 			if (!probe)
@@ -56,6 +53,88 @@ namespace MachineUpgradeSystem
 			}
 
 			return false;
+		}
+
+		public static IEnumerable<CodeInstruction> InjectInventoryUpgrade(IEnumerable<CodeInstruction> source, ILGenerator gen)
+		{
+			var il = new CodeMatcher(source, gen);
+			var slot = gen.DeclareLocal(typeof(Item));
+			var held = gen.DeclareLocal(typeof(Item));
+
+			LocalBuilder ret;
+
+			// find return point
+			il.End()
+			.MatchStartBackwards(new CodeMatch(OpCodes.Ret))
+			.MatchStartBackwards(new CodeMatch(i => i.operand is LocalBuilder));
+			ret = (LocalBuilder)il.Operand;
+			il.Start();
+
+			il.MatchStartForward(
+				new CodeMatch(OpCodes.Callvirt, typeof(Tool).GetMethod(nameof(Tool.attach)))
+			).MatchStartForward(
+				new CodeMatch(OpCodes.Leave)
+			);
+
+			var leaveTarget = il.Instruction.operand;
+
+			il.MatchEndBackwards(
+				new(OpCodes.Ldloc_2),
+				new(OpCodes.Brfalse)
+			);
+
+			il.Advance(1)
+			.CreateLabel(out var jump)
+			.InsertAndAdvance(
+
+				// if (ApplyUpgradeStack(ref held, slot, playSound))
+				new(OpCodes.Ldarga, 3),
+				new(OpCodes.Ldloc_2),
+				new(OpCodes.Ldarg_S, 4),
+				new(OpCodes.Call, typeof(Patches).GetMethod(nameof(ApplyUpgradeStack))),
+				new(OpCodes.Brfalse, jump),
+
+				// return held;
+				new(OpCodes.Ldarg_3),
+				new(OpCodes.Stloc_S, ret),
+				new(OpCodes.Leave, leaveTarget)
+			);
+
+			//var d = il.InstructionEnumeration().ToList();
+
+			return il.InstructionEnumeration();
+		}
+
+		public static bool ApplyUpgradeStack(ref Item? held, Item? slot, bool playSound)
+		{
+			if (held is null || slot is not SObject sobj || !sobj.HasTypeBigCraftable())
+				return false;
+
+			if (!Assets.Data.TryGetValue(held.QualifiedItemId, out var entries))
+				return false;
+
+			if (!entries.TryGetValue(slot.ItemId, out var convertTo))
+				return false;
+			
+			if (held.Stack < slot.Stack)
+			{
+				int count = held.Stack;
+				held = slot.getOne();
+				held.Stack = slot.Stack - count;
+				slot.Stack = count;
+			}
+			else
+			{
+				held = held.ConsumeStack(slot.Stack);
+			}
+
+			slot.ItemId = convertTo;
+			slot.ResetParentSheetIndex();
+
+			if (playSound)
+				Game1.playSound("axechop");
+
+			return true;
 		}
 	}
 }

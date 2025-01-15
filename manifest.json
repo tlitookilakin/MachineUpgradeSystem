@@ -14,10 +14,5 @@
   "Description": "A framework to allow drop-in upgrades for machines",
   "MinimumApiVersion": "4.1",
   "MinimumGameVersion": "1.6",
-  "EntryDll": "MachineUpgradeSystem.dll",
-  "Dependencies": [
-    {
-      "UniqueID": "nachonline.mps"
-    }
-  ]
+  "EntryDll": "MachineUpgradeSystem.dll"
 }

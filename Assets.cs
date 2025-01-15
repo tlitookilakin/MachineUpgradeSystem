@@ -80,8 +80,8 @@ namespace MachineUpgradeSystem
 			foreach ((var id, var item) in augments)
 			{
 				item.Texture = ItemSheetPath.BaseName;
-				item.Category = -29;
-				item.Type = "Crafting";
+				item.Category = -17;
+				item.Type = "Basic";
 				item.DisplayName = Helper.Translation.Get($"item.{id}.name");
 				item.Description = Helper.Translation.Get($"item.{id}.desc");
 				item.CanBeGivenAsGift = false;
