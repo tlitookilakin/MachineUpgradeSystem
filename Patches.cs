@@ -21,11 +21,13 @@ namespace MachineUpgradeSystem
 
 			harmony.Patch(
 				typeof(SObject).GetMethod(nameof(SObject.performObjectDropInAction)),
-				prefix: new(typeof(Patches), nameof(TryDropInUpgrade))
+				prefix: new(typeof(Patches), nameof(TryDropInUpgrade)),
+				postfix: new(typeof(Patches), nameof(CheckForInvalidUpgrade))
 			);
 			harmony.Patch(
 				typeof(CrabPot).GetMethod(nameof(CrabPot.performObjectDropInAction)),
-				prefix: new(typeof(Patches), nameof(TryDropInUpgrade))
+				prefix: new(typeof(Patches), nameof(TryDropInUpgrade)),
+				postfix: new(typeof(Patches), nameof(CheckForInvalidUpgrade))
 			);
 			harmony.Patch(
 				typeof(InventoryMenu).GetMethod(nameof(InventoryMenu.rightClick)),
@@ -33,15 +35,21 @@ namespace MachineUpgradeSystem
 			);
 		}
 
-		public static bool TryDropInUpgrade(ref bool __result, SObject __instance, Item dropInItem, bool probe)
+		public static bool TryDropInUpgrade(ref bool __result, SObject __instance, Item dropInItem, bool probe, out bool __state)
 		{
+			__state = false;
+
 			// no conversions for this kit
 			if (!Assets.Data.TryGetValue(dropInItem.QualifiedItemId, out var entries))
 				return true;
 
 			// no conversion for this machine
 			if (!entries.TryGetValue(__instance.ItemId, out var convertTo))
+			{
+				// mark as non-matching upgrade item
+				__state = true;
 				return true;
+			}
 
 			__result = true;
 
@@ -53,6 +61,29 @@ namespace MachineUpgradeSystem
 			}
 
 			return false;
+		}
+
+		public static void CheckForInvalidUpgrade(bool __result, SObject __instance, bool __state, Farmer who, bool probe)
+		{
+			// if accepted or not an upgrade, ignore
+			if (!__state || __result || probe)
+				return;
+
+			// ignore if automated or a remote player.
+			if (SObject.autoLoadFrom != null || who != Game1.player)
+				return;
+
+			var id = __instance.ItemId;
+			var requiredUpgrade = Assets.Data.FirstOrDefault(p => p.Value.ContainsKey(id)).Key;
+
+			// no matches
+			if (requiredUpgrade is null)
+				return;
+
+			var display = ItemRegistry.GetData(requiredUpgrade).DisplayName;
+
+			// TODO translate me
+			Game1.addHUDMessage(new($"Required upgrade: {display}"));
 		}
 
 		public static IEnumerable<CodeInstruction> InjectInventoryUpgrade(IEnumerable<CodeInstruction> source, ILGenerator gen)
@@ -132,7 +163,7 @@ namespace MachineUpgradeSystem
 			slot.ResetParentSheetIndex();
 
 			if (playSound)
-				Game1.playSound("axechop");
+				Game1.playSound("axchop");
 
 			return true;
 		}

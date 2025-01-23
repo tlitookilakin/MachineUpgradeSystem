@@ -10,7 +10,7 @@
   "UniqueID": "tlitookilakin.mus",
   "Name": "Machine Upgrade System",
   "Author": "tlitookilakin",
-  "Version": "1.0.0",
+  "Version": "1.0.0-Debug",
   "Description": "A framework to allow drop-in upgrades for machines",
   "MinimumApiVersion": "4.1",
   "MinimumGameVersion": "1.6",
