@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using StardewModdingAPI;
 using StardewValley;
-using StardewValley.Extensions;
 using StardewValley.Menus;
 using StardewValley.Objects;
 using System.Reflection.Emit;
@@ -52,13 +51,24 @@ namespace MachineUpgradeSystem
 
 						where.Objects.Remove(tile);
 
-						target.placementAction(where, (int)tile.X, (int)tile.Y);
+						if(target.placementAction(where, (int)tile.X, (int)tile.Y))
+						{
+							if (!where.Objects.ContainsKey(tile))
+								where.Objects[tile] = target;
+						}
+						else
+						{
+							// couldn't be placed, cancel.
+							where.Objects[tile] = __instance;
+							return true;
+						}
 					}
 
 					Game1.playSound("axchop");
 				}
 
-				return true;
+				__result = true;
+				return false;
 			}
 			else if (notif is not null && !probe && farmer != null)
 			{
@@ -66,7 +76,7 @@ namespace MachineUpgradeSystem
 				Game1.showRedMessage(notif);
 			}
 
-			return false;
+			return true;
 		}
 
 		public static void CheckForInvalidUpgrade(bool __result, SObject __instance, bool __state, Farmer who, bool probe)
@@ -79,7 +89,7 @@ namespace MachineUpgradeSystem
 			if (SObject.autoLoadFrom != null || who != Game1.player)
 				return;
 
-			var id = __instance.ItemId;
+			var id = __instance.QualifiedItemId;
 			var requiredUpgrade = Assets.Data.FirstOrDefault(p => p.Value.ContainsKey(id)).Key;
 
 			// no matches
@@ -126,10 +136,17 @@ namespace MachineUpgradeSystem
 
 				// if (ApplyUpgradeStack(ref held, slot, playSound))
 				new(OpCodes.Ldarga, 3),
-				new(OpCodes.Ldloc_2),
-				new(OpCodes.Ldarg_S, 4),
+				new(OpCodes.Ldloca, 2),
+				new(OpCodes.Ldarg, 4),
 				new(OpCodes.Call, typeof(Patches).GetMethod(nameof(ApplyUpgradeStack))),
 				new(OpCodes.Brfalse, jump),
+
+				// this.actualInventory[slotnumber] = slot;
+				new(OpCodes.Ldarg_0),
+				new(OpCodes.Ldfld, typeof(InventoryMenu).GetField(nameof(InventoryMenu.actualInventory))),
+				new(OpCodes.Ldloc_1),
+				new(OpCodes.Ldloc_2),
+				new(OpCodes.Callvirt, typeof(IList<Item>).GetMethod("set_Item")),
 
 				// return held;
 				new(OpCodes.Ldarg_3),
@@ -142,12 +159,12 @@ namespace MachineUpgradeSystem
 			return il.InstructionEnumeration();
 		}
 
-		public static bool ApplyUpgradeStack(ref Item? held, Item? slot, bool playSound)
+		public static bool ApplyUpgradeStack(ref Item? held, ref Item? slot, bool playSound)
 		{
 			if (held is null || slot is not SObject sobj)
 				return false;
 
-			if (ModUtilities.TryApplyUpgradeTo(ref sobj, held, null, Game1.player, false, out _, out _))
+			if (ModUtilities.TryApplyUpgradeTo(ref sobj, held, null, Game1.player, false, out bool isUpgrade, out _))
 			{
 				if (held.Stack < slot.Stack)
 				{
@@ -161,7 +178,6 @@ namespace MachineUpgradeSystem
 					held = held.ConsumeStack(slot.Stack);
 				}
 
-				// TODO update transpiler
 				slot = sobj;
 
 				if (playSound)
@@ -169,13 +185,13 @@ namespace MachineUpgradeSystem
 
 				return true;
 			}
-			else
+			else if (isUpgrade)
 			{
 				if (playSound)
 					Game1.playSound("cancel");
-
-				return false;
 			}
+
+			return false;
 		}
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using StardewValley;
+using StardewValley.Extensions;
 using StardewValley.GameData.BigCraftables;
 using StardewValley.Internal;
 using StardewValley.TokenizableStrings;
@@ -77,14 +78,16 @@ namespace MachineUpgradeSystem
 			{
 				var created = ItemQueryResolver.TryResolveRandomItem(entry.ItemId, new(where, who, Game1.random, "Machine Upgrade System"));
 
-				if (created.GetType() == target.GetType())
+				if (created.GetType() == target.GetType() && (target.HasTypeBigCraftable() == ((SObject)created).HasTypeBigCraftable()))
 				{
 					target.ItemId = created.ItemId;
 					target.ResetParentSheetIndex();
 				}
 				else if (created is SObject obj)
 				{
+					var id = created.ItemId;
 					created.CopyFieldsFrom(target);
+					created.ItemId = id;
 					target = obj;
 				}
 				else
