@@ -35,29 +35,35 @@ namespace MachineUpgradeSystem
 			);
 		}
 
-		public static bool TryDropInUpgrade(ref bool __result, SObject __instance, Item dropInItem, bool probe, out bool __state)
+		public static bool TryDropInUpgrade(ref bool __result, SObject __instance, Item dropInItem, bool probe, out bool __state, Farmer who)
 		{
-			__state = false;
+			var farmer = SObject.autoLoadFrom is null ? who : null;
+			var target = __instance;
 
-			// no conversions for this kit
-			if (!Assets.Data.TryGetValue(dropInItem.QualifiedItemId, out var entries))
-				return true;
-
-			// no conversion for this machine
-			if (!entries.TryGetValue(__instance.ItemId, out var convertTo))
+			if (ModUtilities.TryApplyUpgradeTo(ref target, dropInItem, __instance.Location, farmer, probe, out __state, out var notif))
 			{
-				// mark as non-matching upgrade item
-				__state = true;
+				if (!probe)
+				{
+					// was replaced with new instance
+					if (target.GetType() != __instance.GetType())
+					{
+						var tile = __instance.TileLocation;
+						var where = __instance.Location;
+
+						where.Objects.Remove(tile);
+
+						target.placementAction(where, (int)tile.X, (int)tile.Y);
+					}
+
+					Game1.playSound("axchop");
+				}
+
 				return true;
 			}
-
-			__result = true;
-
-			if (!probe)
+			else if (notif is not null && !probe && farmer != null)
 			{
-				__instance.ItemId = convertTo;
-				__instance.ResetParentSheetIndex();
-				Game1.playSound("axchop");
+				__state = false;
+				Game1.showRedMessage(notif);
 			}
 
 			return false;
@@ -82,8 +88,8 @@ namespace MachineUpgradeSystem
 
 			var display = ItemRegistry.GetData(requiredUpgrade).DisplayName;
 
-			// TODO translate me
-			Game1.addHUDMessage(new($"Required upgrade: {display}"));
+			// TODO replace with bubble
+			Game1.addHUDMessage(new($"Required upgrade: {display}") { noIcon = true });
 		}
 
 		public static IEnumerable<CodeInstruction> InjectInventoryUpgrade(IEnumerable<CodeInstruction> source, ILGenerator gen)
@@ -138,34 +144,38 @@ namespace MachineUpgradeSystem
 
 		public static bool ApplyUpgradeStack(ref Item? held, Item? slot, bool playSound)
 		{
-			if (held is null || slot is not SObject sobj || !sobj.HasTypeBigCraftable())
+			if (held is null || slot is not SObject sobj)
 				return false;
 
-			if (!Assets.Data.TryGetValue(held.QualifiedItemId, out var entries))
-				return false;
-
-			if (!entries.TryGetValue(slot.ItemId, out var convertTo))
-				return false;
-			
-			if (held.Stack < slot.Stack)
+			if (ModUtilities.TryApplyUpgradeTo(ref sobj, held, null, Game1.player, false, out _, out _))
 			{
-				int count = held.Stack;
-				held = slot.getOne();
-				held.Stack = slot.Stack - count;
-				slot.Stack = count;
+				if (held.Stack < slot.Stack)
+				{
+					int count = held.Stack;
+					held = slot.getOne();
+					held.Stack = slot.Stack - count;
+					sobj.Stack = count;
+				}
+				else
+				{
+					held = held.ConsumeStack(slot.Stack);
+				}
+
+				// TODO update transpiler
+				slot = sobj;
+
+				if (playSound)
+					Game1.playSound("axchop");
+
+				return true;
 			}
 			else
 			{
-				held = held.ConsumeStack(slot.Stack);
+				if (playSound)
+					Game1.playSound("cancel");
+
+				return false;
 			}
-
-			slot.ItemId = convertTo;
-			slot.ResetParentSheetIndex();
-
-			if (playSound)
-				Game1.playSound("axchop");
-
-			return true;
 		}
 	}
 }

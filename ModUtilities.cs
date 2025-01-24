@@ -1,4 +1,8 @@
-﻿using StardewValley.GameData.BigCraftables;
+﻿using StardewValley;
+using StardewValley.GameData.BigCraftables;
+using StardewValley.Internal;
+using StardewValley.TokenizableStrings;
+using SObject = StardewValley.Object;
 
 namespace MachineUpgradeSystem
 {
@@ -48,6 +52,44 @@ namespace MachineUpgradeSystem
 			}
 
 			return new string(chars[..cursor]);
+		}
+
+		public static bool TryApplyUpgradeTo(ref SObject target, Item upgrade, GameLocation? where, Farmer? who, bool probe, out bool isUpgrade, out string? notif)
+		{
+			isUpgrade = false;
+			notif = null;
+
+			if (!Assets.Data.TryGetValue(upgrade.QualifiedItemId, out var upgrades))
+				return false;
+
+			isUpgrade = true;
+
+			if (!upgrades.TryGetValue(target.QualifiedItemId, out var entry))
+				return false;
+
+			if (entry.Condition is string cond && !GameStateQuery.CheckConditions(cond, where, who, upgrade, target))
+			{
+				notif = TokenParser.ParseText(entry.FailureMessage, player: who);
+				return false;
+			}
+
+			if (!probe)
+			{
+				var created = ItemQueryResolver.TryResolveRandomItem(entry.ItemId, new(where, who, Game1.random, "Machine Upgrade System"));
+
+				if (created.GetType() == target.GetType())
+				{
+					target.ItemId = created.ItemId;
+					target.ResetParentSheetIndex();
+				}
+				else
+				{
+					created.CopyFieldsFrom(target);
+					target = created;
+				}
+			}
+
+			return true;
 		}
 	}
 }

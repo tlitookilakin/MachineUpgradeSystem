@@ -7,9 +7,9 @@ namespace MachineUpgradeSystem
 {
 	public class Assets
 	{
-		public static Dictionary<string, Dictionary<string, string>> Data
-			=> _data ??= Helper.GameContent.Load<Dictionary<string, Dictionary<string, string>>>(DataPath);
-		private static Dictionary<string, Dictionary<string, string>>? _data;
+		public static Dictionary<string, Dictionary<string, UpgradeEntry>> Data
+			=> _data ??= Helper.GameContent.Load<Dictionary<string, Dictionary<string, UpgradeEntry>>>(DataPath);
+		private static Dictionary<string, Dictionary<string, UpgradeEntry>>? _data;
 
 		private static IAssetName DataPath;
 		private static IAssetName ObjectData;
@@ -47,7 +47,7 @@ namespace MachineUpgradeSystem
 		private static void OnRequested(object? sender, AssetRequestedEventArgs e)
 		{
 			if (e.NameWithoutLocale.Equals(DataPath))
-				e.LoadFromModFile<Dictionary<string, Dictionary<string, string>>>("assets/upgrades.json", AssetLoadPriority.Medium);
+				e.LoadFromModFile<Dictionary<string, Dictionary<string, UpgradeEntry>>>("assets/upgrades.json", AssetLoadPriority.Medium);
 			else if (e.NameWithoutLocale.Equals(ObjectData))
 				e.Edit(AddItems, AssetEditPriority.Default);
 			else if (e.NameWithoutLocale.Equals(ItemSheetPath))
