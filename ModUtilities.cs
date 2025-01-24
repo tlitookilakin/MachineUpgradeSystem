@@ -82,10 +82,14 @@ namespace MachineUpgradeSystem
 					target.ItemId = created.ItemId;
 					target.ResetParentSheetIndex();
 				}
-				else
+				else if (created is SObject obj)
 				{
 					created.CopyFieldsFrom(target);
-					target = created;
+					target = obj;
+				}
+				else
+				{
+					return false;
 				}
 			}
 
