@@ -14,7 +14,7 @@ namespace MachineUpgradeSystem
 		private static IMonitor Monitor;
 		private static Harmony harmony;
 
-		internal static void Patch(IManifest manifest, IMonitor monitor)
+		internal static void Patch(IManifest manifest, IMonitor monitor, IModHelper helper)
 		{
 			Monitor = monitor;
 			harmony = new(manifest.UniqueID);
@@ -34,7 +34,7 @@ namespace MachineUpgradeSystem
 				transpiler: new(typeof(Patches), nameof(InjectInventoryUpgrade))
 			);
 
-			TooltipHandler.Patch(monitor, harmony);
+			TooltipHandler.Patch(monitor, helper, harmony);
 		}
 
 		public static bool TryDropInUpgrade(ref bool __result, SObject __instance, Item dropInItem, bool probe, out bool __state, Farmer who)
