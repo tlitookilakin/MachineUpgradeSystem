@@ -23,13 +23,14 @@ namespace MachineUpgradeSystem
 		private static IAssetName ObjectData;
 		private static IAssetName ItemSheetPath;
 		private static IAssetName ObjectRecipes;
+		private static IAssetName BubbleSprite;
 
 		private static IModHelper Helper;
 		private static IMonitor Monitor;
 
 		private static Dictionary<string, string>? recipeRequirements;
 
-		const string MOD_ID = "tlitookilakin.mus";
+		public const string MOD_ID = "tlitookilakin.mus";
 		const string prefix = MOD_ID + "_";
 
 		internal static void Init(IModHelper helper, IMonitor monitor)
@@ -41,6 +42,7 @@ namespace MachineUpgradeSystem
 			ObjectData = Helper.GameContent.ParseAssetName("Data/Objects");
 			ItemSheetPath = Helper.GameContent.ParseAssetName("Mods/" + MOD_ID + "/Items");
 			ObjectRecipes = Helper.GameContent.ParseAssetName("Data/CraftingRecipes");
+			BubbleSprite = Helper.GameContent.ParseAssetName("Mods/" + MOD_ID + "/Bubble");
 
 			Helper.Events.Content.AssetsInvalidated += OnInvalidate;
 			Helper.Events.Content.AssetRequested += OnRequested;
@@ -77,6 +79,8 @@ namespace MachineUpgradeSystem
 				e.LoadFromModFile<Texture2D>("assets/items.png", AssetLoadPriority.Medium);
 			else if (e.NameWithoutLocale.Equals(ObjectRecipes))
 				e.Edit(RemoveRecipes, (AssetEditPriority)10);
+			else if (e.NameWithoutLocale.Equals(BubbleSprite))
+				e.LoadFromModFile<Texture2D>("assets/bubble.png", AssetLoadPriority.Low);
 		}
 
 		private static void OnInvalidate(object? sender, AssetsInvalidatedEventArgs e)
@@ -86,11 +90,13 @@ namespace MachineUpgradeSystem
 				_data = null;
 				_upgradeCache = null;
 			}
+
+			if (e.NamesWithoutLocale.Contains(ObjectData))
+				upgradeIcons.Clear();
 		}
 
 		private static void AddItems(IAssetData asset)
 		{
-
 			if (asset.Data is not Dictionary<string, ObjectData> itemData)
 			{
 				Monitor.Log("Failed to edit object data: unexpected datatype", LogLevel.Error);
