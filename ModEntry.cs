@@ -14,7 +14,7 @@ namespace MachineUpgradeSystem
 			
 			try
 			{
-				Patches.Patch(ModManifest, Monitor);
+				Patches.Patch(ModManifest, Monitor, helper);
 			}
 			catch (Exception ex)
 			{
