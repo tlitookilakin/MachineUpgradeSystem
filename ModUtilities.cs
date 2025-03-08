@@ -55,10 +55,15 @@ namespace MachineUpgradeSystem
 			return new string(chars[..cursor]);
 		}
 
-		public static bool TryApplyUpgradeTo(ref SObject target, Item upgrade, GameLocation? where, Farmer? who, bool probe, out bool isUpgrade, out string? notif)
+		public static bool TryApplyUpgradeTo(
+			ref Item target, Item upgrade, GameLocation? where, Farmer? who, bool probe, bool objectOnly, out bool isUpgrade, out string? notif
+		)
 		{
 			isUpgrade = false;
 			notif = null;
+
+			if (target.IsRecipe)
+				return false;
 
 			if (!Assets.Data.TryGetValue(upgrade.QualifiedItemId, out var upgrades))
 				return false;
@@ -81,18 +86,21 @@ namespace MachineUpgradeSystem
 			{
 				var created = ItemQueryResolver.TryResolveRandomItem(entry.ItemId, new(where, who, Game1.random, "Machine Upgrade System"));
 
-				if (created.GetType() == target.GetType() && (target.HasTypeBigCraftable() == ((SObject)created).HasTypeBigCraftable()))
+				if (created.GetType() == target.GetType() && target.HasTypeId(created.TypeDefinitionId))
 				{
 					target.ItemId = created.ItemId;
 					target.ResetParentSheetIndex();
 				}
-				else if (created is SObject obj)
+				else if (!objectOnly || created is SObject)
 				{
 					var id = created.ItemId;
+					var name = created.Name;
 					created.CopyFieldsFrom(target);
 					created.ItemId = id;
+					created.Name = name;
 					created.Stack = target.Stack;
-					target = obj;
+					created.resetState();
+					target = created;
 				}
 				else
 				{

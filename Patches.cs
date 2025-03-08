@@ -37,12 +37,14 @@ namespace MachineUpgradeSystem
 		public static bool TryDropInUpgrade(ref bool __result, SObject __instance, Item dropInItem, bool probe, out bool __state, Farmer who)
 		{
 			var farmer = SObject.autoLoadFrom is null ? who : null;
-			var target = __instance;
+			Item obj = __instance;
 
-			if (ModUtilities.TryApplyUpgradeTo(ref target, dropInItem, __instance.Location, farmer, probe, out __state, out var notif))
+			if (ModUtilities.TryApplyUpgradeTo(ref obj, dropInItem, __instance.Location, farmer, probe, true, out __state, out var notif))
 			{
 				if (!probe)
 				{
+					SObject target = (SObject)obj;
+
 					// was replaced with new instance
 					if (target.GetType() != __instance.GetType())
 					{
@@ -163,24 +165,24 @@ namespace MachineUpgradeSystem
 
 		public static bool ApplyUpgradeStack(ref Item? held, ref Item? slot, bool playSound)
 		{
-			if (held is null || slot is not SObject sobj)
+			if (held is null || slot is null)
 				return false;
 
-			if (ModUtilities.TryApplyUpgradeTo(ref sobj, held, null, Game1.player, false, out bool isUpgrade, out _))
+			var old_slot = slot.getOne();
+
+			if (ModUtilities.TryApplyUpgradeTo(ref slot, held, null, Game1.player, false, false, out bool isUpgrade, out _))
 			{
 				if (held.Stack < slot.Stack)
 				{
 					int count = held.Stack;
-					held = slot.getOne();
+					held = old_slot;
 					held.Stack = slot.Stack - count;
-					sobj.Stack = count;
+					slot.Stack = count;
 				}
 				else
 				{
 					held = held.ConsumeStack(slot.Stack);
 				}
-
-				slot = sobj;
 
 				if (playSound)
 					Game1.playSound("axchop");
