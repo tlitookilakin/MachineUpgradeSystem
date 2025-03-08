@@ -70,7 +70,10 @@ namespace MachineUpgradeSystem
 
 			if (entry.Condition is string cond && !GameStateQuery.CheckConditions(cond, where, who, upgrade, target))
 			{
-				notif = TokenParser.ParseText(entry.FailureMessage, player: who);
+				notif = entry.FailureMessage is string msg ? 
+					TokenParser.ParseText(entry.FailureMessage, player: who) :
+					"";
+
 				return false;
 			}
 
@@ -88,6 +91,7 @@ namespace MachineUpgradeSystem
 					var id = created.ItemId;
 					created.CopyFieldsFrom(target);
 					created.ItemId = id;
+					created.Stack = target.Stack;
 					target = obj;
 				}
 				else

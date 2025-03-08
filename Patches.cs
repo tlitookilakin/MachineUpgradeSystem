@@ -73,7 +73,9 @@ namespace MachineUpgradeSystem
 			else if (notif is not null && !probe && farmer != null)
 			{
 				__state = false;
-				Game1.showRedMessage(notif);
+
+				if (notif.Length > 0)
+					Game1.showRedMessage(notif);
 			}
 
 			return true;
