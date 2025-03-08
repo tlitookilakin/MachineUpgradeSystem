@@ -1,7 +1,9 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
+using StardewValley;
 using StardewValley.GameData.Objects;
+using StardewValley.ItemTypeDefinitions;
 
 namespace MachineUpgradeSystem
 {
@@ -10,6 +12,12 @@ namespace MachineUpgradeSystem
 		public static Dictionary<string, Dictionary<string, UpgradeEntry>> Data
 			=> _data ??= Helper.GameContent.Load<Dictionary<string, Dictionary<string, UpgradeEntry>>>(DataPath);
 		private static Dictionary<string, Dictionary<string, UpgradeEntry>>? _data;
+
+		public static Dictionary<string, string> UpgradeCache
+			=> _upgradeCache ??= GenerateCache();
+		private static Dictionary<string, string>? _upgradeCache;
+
+		private static readonly Dictionary<string, ParsedItemData> upgradeIcons = [];
 
 		private static IAssetName DataPath;
 		private static IAssetName ObjectData;
@@ -44,6 +52,21 @@ namespace MachineUpgradeSystem
 			Helper.GameContent.InvalidateCache(ObjectRecipes);
 		}
 
+		internal static ParsedItemData GetIcon(string id)
+		{
+			if (!upgradeIcons.TryGetValue(id, out var data))
+				upgradeIcons[id] = data = ItemRegistry.GetData(id);
+
+			return data;
+		}
+
+		private static Dictionary<string, string> GenerateCache()
+			=> new(
+				Data.SelectMany(static chunk => 
+					chunk.Value.Select(pair => new KeyValuePair<string, string>(pair.Key, chunk.Key))
+				)
+			);
+
 		private static void OnRequested(object? sender, AssetRequestedEventArgs e)
 		{
 			if (e.NameWithoutLocale.Equals(DataPath))
@@ -59,7 +82,10 @@ namespace MachineUpgradeSystem
 		private static void OnInvalidate(object? sender, AssetsInvalidatedEventArgs e)
 		{
 			if (e.NamesWithoutLocale.Contains(DataPath))
+			{
 				_data = null;
+				_upgradeCache = null;
+			}
 		}
 
 		private static void AddItems(IAssetData asset)

@@ -32,6 +32,8 @@ namespace MachineUpgradeSystem
 				typeof(InventoryMenu).GetMethod(nameof(InventoryMenu.rightClick)),
 				transpiler: new(typeof(Patches), nameof(InjectInventoryUpgrade))
 			);
+
+			TooltipHandler.Patch(monitor, harmony);
 		}
 
 		public static bool TryDropInUpgrade(ref bool __result, SObject __instance, Item dropInItem, bool probe, out bool __state, Farmer who)
@@ -94,13 +96,10 @@ namespace MachineUpgradeSystem
 				return;
 
 			var id = __instance.QualifiedItemId;
-			var requiredUpgrade = Assets.Data.FirstOrDefault(p => p.Value.ContainsKey(id)).Key;
-
-			// no matches
-			if (requiredUpgrade is null)
+			if (!Assets.UpgradeCache.TryGetValue(id, out var upgrade))
 				return;
 
-			var display = ItemRegistry.GetData(requiredUpgrade).DisplayName;
+			var display = Assets.GetIcon(upgrade).DisplayName;
 
 			// TODO replace with bubble
 			Game1.addHUDMessage(new($"Required upgrade: {display}") { noIcon = true });
