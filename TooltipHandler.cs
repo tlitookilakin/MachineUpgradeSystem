@@ -4,7 +4,6 @@ using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Menus;
-using StardewValley.Objects;
 using StardewValley.Tools;
 using System.Reflection.Emit;
 using System.Text;
@@ -14,11 +13,12 @@ namespace MachineUpgradeSystem
 	internal static class TooltipHandler
 	{
 		private static IMonitor Monitor;
-		private static Harmony harmony;
+		private static IModHelper Helper;
 
-		internal static void Patch(IMonitor monitor, Harmony harmony)
+		internal static void Patch(IMonitor monitor, IModHelper helper, Harmony harmony)
 		{
 			Monitor = monitor;
+			Helper = helper;
 
 			harmony.Patch(
 				typeof(Item).GetMethod(nameof(Item.drawTooltip)),
@@ -44,7 +44,8 @@ namespace MachineUpgradeSystem
 			var icon = Assets.GetIcon(upgrade);
 			icon.Draw(spriteBatch, new(x + 16, y + 16), 2f, alpha);
 			var color = Utility.Get2PhaseColor(Game1.textColor, Color.Lime);
-			spriteBatch.DrawShadowText(font, "Upgradable", new(x + 48, y + 18), color * alpha, Game1.textShadowColor * alpha);
+			var text = Helper.Translation.Get("ui.upgradable.text", new {upgrade = icon.DisplayName});
+			spriteBatch.DrawShadowText(font, text, new(x + 48, y + 18), color * alpha, Game1.textShadowColor * alpha);
 			y += 32 + 4;
 		}
 

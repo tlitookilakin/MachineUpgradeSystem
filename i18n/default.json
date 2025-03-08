@@ -13,5 +13,6 @@
   "item.prismaticUpgrade.desc": "Upgrades radioactive machines to prismatic tier.",
   "cfg.itemid.name": "Ingredient Item",
   "cfg.inputcount.name": "Ingredient Count",
-  "cfg.outputcount.name": "Crafted Count"
+  "cfg.outputcount.name": "Crafted Count",
+  "ui.upgradable.text": "Upgradable"
 }
