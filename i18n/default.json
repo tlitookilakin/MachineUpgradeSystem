@@ -14,5 +14,6 @@
   "cfg.itemid.name": "Ingredient Item",
   "cfg.inputcount.name": "Ingredient Count",
   "cfg.outputcount.name": "Crafted Count",
-  "ui.upgradable.text": "Upgradable"
+  "ui.upgradable.text": "Upgradable",
+  "ui.failedUpgrade.text": "Upgrade not unlocked."
 }

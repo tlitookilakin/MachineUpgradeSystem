@@ -78,9 +78,9 @@ namespace MachineUpgradeSystem
 			else if (notif is not null && !probe && farmer != null)
 			{
 				__state = false;
-
-				if (notif.Length > 0)
-					Game1.showRedMessage(notif);
+				Game1.playSound("cancel");
+				ErrorModal.PushMessage(notif);
+				ModUtilities.DisplayErrorSprite(__instance.Location, __instance.TileLocation);
 			}
 
 			return true;
@@ -88,7 +88,6 @@ namespace MachineUpgradeSystem
 
 		public static void CheckForInvalidUpgrade(bool __result, SObject __instance, bool __state, Farmer who, bool probe)
 		{
-			const string bubble_texture = "Mods/" + Assets.MOD_ID + "/Bubble";
 
 			// if accepted or not an upgrade, ignore
 			if (!__state || __result || probe)
@@ -103,43 +102,9 @@ namespace MachineUpgradeSystem
 				return;
 
 			var icon = Assets.GetIcon(upgrade);
-			var display = icon.DisplayName;
 
 			Game1.playSound("cancel");
-
-			var where = __instance.Location;
-			var pos = __instance.TileLocation * 64f;
-			float depth = (pos.Y + 64f) * .0001f;
-			pos.Y -= 128f;
-			if (where != null)
-			{
-				TemporaryAnimatedSprite bubble = new(bubble_texture, new(0, 0, 16, 16), pos, false, 0f, Color.White)
-				{
-					animationLength = 4,
-					interval = 20,
-					layerDepth = depth,
-					scale = 4f,
-					endFunction = i =>
-					{
-						where.TemporarySprites.Add(new(bubble_texture, new(0, 16, 16, 16), pos, false, 0f, Color.White)
-						{
-							animationLength = 4,
-							totalNumberOfLoops = 2,
-							interval = 250,
-							layerDepth = depth,
-							scale = 4f
-						});
-						where.TemporarySprites.Add(new(icon.GetTextureName(), icon.GetSourceRect(), pos + new Vector2(16, 8), false, 0f, Color.White)
-						{
-							animationLength = 1,
-							interval = 2000,
-							layerDepth = MathF.BitIncrement(depth),
-							scale = 2f
-						});
-					}
-				};
-				where.TemporarySprites.Add(bubble);
-			}
+			ModUtilities.DisplayUpgradeSprite(__instance.Location, __instance.TileLocation, icon);
 		}
 
 		public static IEnumerable<CodeInstruction> InjectInventoryUpgrade(IEnumerable<CodeInstruction> source, ILGenerator gen)
@@ -206,7 +171,7 @@ namespace MachineUpgradeSystem
 
 			var old_slot = slot.getOne();
 
-			if (ModUtilities.TryApplyUpgradeTo(ref slot, held, null, Game1.player, false, false, out bool isUpgrade, out _))
+			if (ModUtilities.TryApplyUpgradeTo(ref slot, held, null, Game1.player, false, false, out bool isUpgrade, out var notif))
 			{
 				if (held.Stack < slot.Stack)
 				{
@@ -229,6 +194,9 @@ namespace MachineUpgradeSystem
 			{
 				if (playSound)
 					Game1.playSound("cancel");
+
+				if (notif is not null)
+					ErrorModal.PushMessage(notif);
 			}
 
 			return false;

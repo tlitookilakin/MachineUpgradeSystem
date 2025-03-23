@@ -97,6 +97,143 @@ namespace MachineUpgradeSystem
 			throw new ArgumentException();
 		}
 
+		public static void DisplayErrorSprite(GameLocation where, Vector2 pos)
+		{
+			pos *= 64f;
+			float depth = (pos.Y + 64f) * .0001f;
+			pos.Y -= 128f;
+
+			if (where != null)
+			{
+				TemporaryAnimatedSprite bubble = new("TileSheets\\emotes", new(0, 0, 16, 16), pos, false, 0f, Color.White)
+				{
+					animationLength = 4,
+					interval = 20,
+					layerDepth = depth,
+					scale = 4f,
+					endFunction = i =>
+					{
+						where.TemporarySprites.Add(new("TileSheets\\emotes", new(0, 9 * 16, 16, 16), pos, false, 0f, Color.White)
+						{
+							animationLength = 4,
+							totalNumberOfLoops = 2,
+							interval = 250,
+							layerDepth = depth,
+							scale = 4f
+						});
+					}
+				};
+				where.TemporarySprites.Add(bubble);
+			}
+		}
+
+		public static void DisplayUpgradeSprite(GameLocation where, Vector2 pos, ParsedItemData icon)
+		{
+			const string bubble_texture = "Mods/" + Assets.MOD_ID + "/Bubble";
+
+			pos *= 64f;
+			float depth = (pos.Y + 64f) * .0001f;
+			pos.Y -= 128f;
+			if (where != null)
+			{
+				TemporaryAnimatedSprite bubble = new(bubble_texture, new(0, 0, 16, 16), pos, false, 0f, Color.White)
+				{
+					animationLength = 4,
+					interval = 20,
+					layerDepth = depth,
+					scale = 4f,
+					endFunction = i =>
+					{
+						where.TemporarySprites.Add(new(bubble_texture, new(0, 16, 16, 16), pos, false, 0f, Color.White)
+						{
+							animationLength = 4,
+							totalNumberOfLoops = 2,
+							interval = 250,
+							layerDepth = depth,
+							scale = 4f
+						});
+						where.TemporarySprites.Add(new(icon.GetTextureName(), icon.GetSourceRect(), pos + new Vector2(16, 8), false, 0f, Color.White)
+						{
+							animationLength = 1,
+							interval = 2000,
+							layerDepth = MathF.BitIncrement(depth),
+							scale = 2f
+						});
+					}
+				};
+				where.TemporarySprites.Add(bubble);
+			}
+		}
+
+		public static void DrawFrame(this SpriteBatch b, Texture2D texture, Rectangle source, Rectangle dest, Rectangle interior, Color c, bool drawInside, int scale)
+		{
+			int s_right = source.Width - interior.Right;
+			int s_bottom = source.Height - interior.Bottom;
+
+			// top row
+
+			int s_y = source.Y;
+			int d_y = dest.Y;
+			int s_h = interior.Y;
+			int d_h = interior.Y * scale;
+
+			b.Draw(texture,
+				new Rectangle(dest.X, d_y, interior.X * scale, d_h),
+				new Rectangle(source.X, s_y, interior.X, s_h),
+			c);
+			b.Draw(texture,
+				new Rectangle(dest.X + interior.X * scale, d_y, dest.Width - s_right * scale - interior.X * scale, d_h),
+				new Rectangle(source.X + interior.X, s_y, interior.Width, s_h),
+			c);
+			b.Draw(texture,
+				new Rectangle(dest.Right - s_right * scale, d_y, s_right * scale, d_h),
+				new Rectangle(source.X + interior.Right, s_y, s_right, s_h),
+			c);
+
+			// middle row
+
+			s_y = interior.Y + source.Y;
+			d_y = dest.Y + interior.Y * scale;
+			s_h = interior.Height;
+			d_h = dest.Height - interior.Y * scale - s_bottom * scale;
+			
+			b.Draw(texture,
+				new Rectangle(dest.X, d_y, interior.X * scale, d_h),
+				new Rectangle(source.X, s_y, interior.X, s_h),
+			c);
+			if (drawInside)
+			{
+				b.Draw(texture,
+					new Rectangle(dest.X + interior.X * scale, d_y, dest.Width - s_right * scale - interior.X * scale, d_h),
+					new Rectangle(source.X + interior.X, s_y, interior.Width, s_h),
+				c);
+			}
+			b.Draw(texture,
+				new Rectangle(dest.Right - s_right * scale, d_y, s_right * scale, d_h),
+				new Rectangle(source.X + interior.Right, s_y, s_right, s_h),
+			c);
+
+			// bottom row
+
+			s_y = interior.Bottom + source.Y;
+			d_y = dest.Bottom - s_bottom * scale;
+			s_h = s_bottom;
+			d_h = s_bottom * scale;
+
+			b.Draw(texture,
+				new Rectangle(dest.X, d_y, interior.X * scale, d_h),
+				new Rectangle(source.X, s_y, interior.X, s_h),
+			c);
+			b.Draw(texture,
+				new Rectangle(dest.X + interior.X * scale, d_y, dest.Width - s_right * scale - interior.X * scale, d_h),
+				new Rectangle(source.X + interior.X, s_y, interior.Width, s_h),
+			c);
+			b.Draw(texture,
+				new Rectangle(dest.Right - s_right * scale, d_y, s_right * scale, d_h),
+				new Rectangle(source.X + interior.Right, s_y, s_right, s_h),
+			c);
+		}
+
 		public static bool TryApplyUpgradeTo(
 			ref Item target, Item upgrade, GameLocation? where, Farmer? who, bool probe, bool objectOnly, out bool isUpgrade, out string? notif
 		)
@@ -119,7 +256,7 @@ namespace MachineUpgradeSystem
 			{
 				notif = entry.FailureMessage is string msg ? 
 					TokenParser.ParseText(entry.FailureMessage, player: who) :
-					"";
+					ModEntry.I18N.Get("ui.failedUpgrade.text");
 
 				return false;
 			}

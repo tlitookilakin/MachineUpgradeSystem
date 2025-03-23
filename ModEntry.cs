@@ -4,13 +4,18 @@ namespace MachineUpgradeSystem
 {
 	public class ModEntry : Mod
 	{
+		internal static ITranslationHelper I18N = null!;
+
 		private const string command_desc = "Generates upgrade files. Arguments: <modid> <type> <output> ( [tier_prefix] [tier_item] )+ . <type> can be 'raw' (plain json), 'entry' (CP patch), or 'field' (CP patch using TargetFields). output is the output file. If not specified, tier will default to the built-in tiers that come with MUS.";
 
 		public override void Entry(IModHelper helper)
 		{
+			I18N = helper.Translation;
+
 			Config.Init(helper, ModManifest);
 			Assets.Init(helper, Monitor);
 			DataGen.Init(Monitor, helper);
+			ErrorModal.Init(helper);
 			
 			try
 			{
