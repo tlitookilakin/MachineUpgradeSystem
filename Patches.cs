@@ -81,6 +81,7 @@ namespace MachineUpgradeSystem
 					if (SObject.autoLoadFrom is IInventory autoload)
 					{
 						autoload.ReduceId(dropInItem.QualifiedItemId, 1);
+						autoload.RemoveEmptySlots();
 					}
 					else
 					{
