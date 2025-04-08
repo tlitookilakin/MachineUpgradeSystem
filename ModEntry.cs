@@ -8,6 +8,8 @@ namespace MachineUpgradeSystem
 
 		private const string command_desc = "Generates upgrade files. Arguments: <modid> <type> <output> ( [tier_prefix] [tier_item] )+ . <type> can be 'raw' (plain json), 'entry' (CP patch), or 'field' (CP patch using TargetFields). output is the output file. If not specified, tier will default to the built-in tiers that come with MUS.";
 
+		private readonly IMachineUpgradeAPI api = new API();
+
 		public override void Entry(IModHelper helper)
 		{
 			I18N = helper.Translation;
@@ -28,6 +30,11 @@ namespace MachineUpgradeSystem
 
 			Helper.Events.GameLoop.GameLaunched += OnLaunch;
 			Helper.ConsoleCommands.Add("mus_generate", command_desc, CommandRegenerate);
+		}
+
+		public override object? GetApi()
+		{
+			return api;
 		}
 
 		private void OnLaunch(object? sender, StardewModdingAPI.Events.GameLaunchedEventArgs e)
