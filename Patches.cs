@@ -2,6 +2,8 @@
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
+using StardewValley.Extensions;
+using StardewValley.Inventories;
 using StardewValley.Menus;
 using StardewValley.Objects;
 using System.Reflection.Emit;
@@ -37,6 +39,7 @@ namespace MachineUpgradeSystem
 			TooltipHandler.Patch(monitor, helper, harmony);
 		}
 
+		// TODO handle transformation to other types
 		public static bool TryDropInUpgrade(ref bool __result, SObject __instance, Item dropInItem, bool probe, out bool __state, Farmer who)
 		{
 			var farmer = SObject.autoLoadFrom is null ? who : null;
@@ -46,10 +49,16 @@ namespace MachineUpgradeSystem
 			{
 				if (!probe)
 				{
-					SObject target = (SObject)obj;
+					// not an object, drop on floor
+					if (obj is not SObject target)
+					{
+						Game1.createItemDebris(obj, __instance.TileLocation * 64f + new Vector2(32f), -1, __instance.Location);
+						__instance.Location.Objects.Remove(__instance.TileLocation);
+						return false;
+					}
 
 					// was replaced with new instance
-					if (target.GetType() != __instance.GetType())
+					if (target.GetType() != __instance.GetType() || !target.HasTypeId(__instance.GetItemTypeId()))
 					{
 						var tile = __instance.TileLocation;
 						var where = __instance.Location;
@@ -69,7 +78,14 @@ namespace MachineUpgradeSystem
 						}
 					}
 
-					Game1.playSound("axchop");
+					if (SObject.autoLoadFrom is IInventory autoload)
+					{
+						autoload.ReduceId(dropInItem.QualifiedItemId, 1);
+					}
+					else
+					{
+						Game1.playSound("axchop");
+					}
 				}
 
 				__result = true;
@@ -88,7 +104,6 @@ namespace MachineUpgradeSystem
 
 		public static void CheckForInvalidUpgrade(bool __result, SObject __instance, bool __state, Farmer who, bool probe)
 		{
-
 			// if accepted or not an upgrade, ignore
 			if (!__state || __result || probe)
 				return;

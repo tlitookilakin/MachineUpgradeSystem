@@ -241,7 +241,10 @@ namespace MachineUpgradeSystem
 			isUpgrade = false;
 			notif = null;
 
-			if (target.IsRecipe)
+			if (target is null || upgrade is null)
+				return false;
+
+			if (target.IsRecipe || upgrade.IsRecipe)
 				return false;
 
 			if (!Assets.Data.TryGetValue(upgrade.QualifiedItemId, out var upgrades))
