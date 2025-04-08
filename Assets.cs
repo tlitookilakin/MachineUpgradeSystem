@@ -4,6 +4,7 @@ using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.GameData.Objects;
 using StardewValley.ItemTypeDefinitions;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MachineUpgradeSystem
 {
@@ -13,9 +14,9 @@ namespace MachineUpgradeSystem
 			=> _data ??= Helper.GameContent.Load<Dictionary<string, Dictionary<string, UpgradeEntry>>>(DataPath);
 		private static Dictionary<string, Dictionary<string, UpgradeEntry>>? _data;
 
-		public static Dictionary<string, string> UpgradeCache
+		public static Dictionary<string, List<string>> UpgradeCache
 			=> _upgradeCache ??= GenerateCache();
-		private static Dictionary<string, string>? _upgradeCache;
+		private static Dictionary<string, List<string>>? _upgradeCache;
 
 		private static readonly Dictionary<string, ParsedItemData> upgradeIcons = [];
 
@@ -54,7 +55,7 @@ namespace MachineUpgradeSystem
 			Helper.GameContent.InvalidateCache(ObjectRecipes);
 		}
 
-		internal static ParsedItemData GetIcon(string id)
+		internal static ParsedItemData GetIconById(string id)
 		{
 			if (!upgradeIcons.TryGetValue(id, out var data))
 				upgradeIcons[id] = data = ItemRegistry.GetData(id);
@@ -62,12 +63,38 @@ namespace MachineUpgradeSystem
 			return data;
 		}
 
-		private static Dictionary<string, string> GenerateCache()
-			=> new(
-				Data.SelectMany(static chunk => 
-					chunk.Value.Select(pair => new KeyValuePair<string, string>(pair.Key, chunk.Key))
+		internal static bool TryGetIcon(string targetId, [NotNullWhen(true)] out ParsedItemData? icon, int which = -1)
+		{
+			icon = null;
+
+			if (!UpgradeCache.TryGetValue(targetId, out var upgrades))
+				return false;
+
+			if (which < 0)
+				which = Game1.ticks / 30;
+
+			var upgrade = upgrades[which % upgrades.Count];
+			icon = GetIconById(upgrade);
+			return true;
+		}
+
+		private static Dictionary<string, List<string>> GenerateCache()
+		{
+			return Data
+				.SelectMany(static chunk =>
+					chunk.Value.Select(
+						pair => new KeyValuePair<string, string>(pair.Key, chunk.Key)
+					)
 				)
-			);
+				.GroupBy(
+					static p => p.Key, 
+					static p => p.Value
+				)
+				.ToDictionary(
+					static g => g.Key,
+					static g => g.ToList()
+				);
+		}
 
 		private static void OnRequested(object? sender, AssetRequestedEventArgs e)
 		{

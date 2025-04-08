@@ -38,10 +38,9 @@ namespace MachineUpgradeSystem
 
 		private static void AddToTooltip(Item __instance, SpriteBatch spriteBatch, ref int x, ref int y, SpriteFont font, float alpha)
 		{
-			if (!Assets.UpgradeCache.TryGetValue(__instance.QualifiedItemId, out var upgrade))
+			if (!Assets.TryGetIcon(__instance.QualifiedItemId, out var icon))
 				return;
 
-			var icon = Assets.GetIcon(upgrade);
 			icon.Draw(spriteBatch, new(x + 16, y + 16), 2f, alpha);
 			var color = Utility.Get2PhaseColor(Game1.textColor, Color.Lime);
 			var text = Helper.Translation.Get("ui.upgradable.text", new {upgrade = icon.DisplayName});

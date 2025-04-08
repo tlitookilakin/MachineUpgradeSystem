@@ -113,10 +113,8 @@ namespace MachineUpgradeSystem
 				return;
 
 			var id = __instance.QualifiedItemId;
-			if (!Assets.UpgradeCache.TryGetValue(id, out var upgrade))
+			if (!Assets.TryGetIcon(id, out var icon))
 				return;
-
-			var icon = Assets.GetIcon(upgrade);
 
 			Game1.playSound("cancel");
 			ModUtilities.DisplayUpgradeSprite(__instance.Location, __instance.TileLocation, icon);
