@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace MachineUpgradeSystem
 {
-	internal class API : IMachineUpgradeAPI
+	public class API : IMachineUpgradeAPI
 	{
 		public IReadOnlyList<string> GetUpgrades(string itemId)
 		{
