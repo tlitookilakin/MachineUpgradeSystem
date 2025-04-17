@@ -44,7 +44,7 @@ namespace MachineUpgradeSystem
 
 		private void CommandRegenerate(string cmd, string[] args)
 		{
-			if (args.Length < 3)
+			if (args.Length < 2)
 			{
 				Monitor.Log("Required parameters missing.", LogLevel.Info);
 				Monitor.Log(command_desc, LogLevel.Info);
