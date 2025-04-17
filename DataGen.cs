@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MachineUpgradeSystem
 {
-    public static class DataGen
+	public static class DataGen
 	{
 
 		private static readonly string[] defaultTiers =
@@ -15,18 +15,16 @@ namespace MachineUpgradeSystem
 			["(O)tlitookilakin.mus_steelUpgrade", "(O)tlitookilakin.mus_goldUpgrade", "(O)tlitookilakin.mus_diamondUpgrade", "(O)tlitookilakin.mus_iridiumUpgrade", "(O)tlitookilakin.mus_radioactiveUpgrade", "(O)tlitookilakin.mus_prismaticUpgrade"];
 
 		private static IMonitor Monitor = null!;
-		private static IModHelper Helper = null!;
 
-        public enum EntryType {Error, Raw, Entry, Field}
+		public enum EntryType {Error, Raw, Entry, Field}
 
-		internal static void Init(IMonitor monitor, IModHelper helper)
+		internal static void Init(IMonitor monitor)
 		{
 			Monitor = monitor;
-			Helper = helper;
 		}
 
-        public static void GenerateJson(string modid, EntryType type, string file, params string[]? tier_args)
-        {
+		public static void GenerateJson(string modid, EntryType type, params string[]? tier_args)
+		{
 			string mod_prefix = modid + '_';
 			string[] tiers, tierItems;
 
@@ -95,13 +93,8 @@ namespace MachineUpgradeSystem
 				}
 			}
 
-			var filepath = Path.Combine(Directory.GetParent(Helper.DirectoryPath)!.FullName, file);
-			if (!filepath.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
-				filepath += ".json";
-
-			File.WriteAllText(filepath, GetOutput(map, tierItems, tiers, type));
-
-			Monitor.Log("Done", LogLevel.Info);
+			DesktopClipboard.SetText(GetOutput(map, tierItems, tiers, type));
+			Monitor.Log("Copied to clipboard", LogLevel.Info);
 		}
 
 		private static string GetOutput(

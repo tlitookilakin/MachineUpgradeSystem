@@ -16,7 +16,7 @@ namespace MachineUpgradeSystem
 
 			Config.Init(helper, ModManifest);
 			Assets.Init(helper, Monitor);
-			DataGen.Init(Monitor, helper);
+			DataGen.Init(Monitor);
 			ErrorModal.Init(helper);
 			
 			try
