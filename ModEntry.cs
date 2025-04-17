@@ -6,7 +6,7 @@ namespace MachineUpgradeSystem
 	{
 		internal static ITranslationHelper I18N = null!;
 
-		private const string command_desc = "Generates upgrade files. Arguments: <modid> <type> <output> ( [tier_prefix] [tier_item] )+ . <type> can be 'raw' (plain json), 'entry' (CP patch), or 'field' (CP patch using TargetFields). output is the output file. If not specified, tier will default to the built-in tiers that come with MUS.";
+		private const string command_desc = "Generates upgrade files. Arguments: <modid> <type> ( [tier_prefix] [tier_item] )+ . <type> can be 'raw' (plain json), 'entry' (CP patch), or 'field' (CP patch using TargetFields). output is the output file. If not specified, tier will default to the built-in tiers that come with MUS.";
 
 		private readonly IMachineUpgradeAPI api = new API();
 
@@ -65,7 +65,7 @@ namespace MachineUpgradeSystem
 				return;
 			}
 
-			DataGen.GenerateJson(args[0], type, args[2], args.Length > 3 ? args[3..] : null);
+			DataGen.GenerateJson(args[0], type, args.Length > 2 ? args[2..] : null);
 		}
 	}
 }
