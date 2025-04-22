@@ -65,7 +65,7 @@ namespace MachineUpgradeSystem
 
 						where.Objects.Remove(tile);
 
-						if(target.placementAction(where, (int)tile.X, (int)tile.Y))
+						if(target.placementAction(where, (int)tile.X * 64, (int)tile.Y * 64))
 						{
 							if (!where.Objects.ContainsKey(tile))
 								where.Objects[tile] = target;
