@@ -31,10 +31,18 @@ namespace MachineUpgradeSystem
 				prefix: new(typeof(Patches), nameof(TryDropInUpgrade)),
 				postfix: new(typeof(Patches), nameof(CheckForInvalidUpgrade))
 			);
-			harmony.Patch(
-				typeof(InventoryMenu).GetMethod(nameof(InventoryMenu.rightClick)),
-				transpiler: new(typeof(Patches), nameof(InjectInventoryUpgrade))
-			);
+
+			if (!OperatingSystem.IsAndroid())
+			{
+				harmony.Patch(
+					typeof(InventoryMenu).GetMethod(nameof(InventoryMenu.rightClick)),
+					transpiler: new(typeof(Patches), nameof(InjectInventoryUpgrade))
+				);
+			}
+			else
+			{
+				monitor.Log("Some features are not supported on android and will be disabled!", LogLevel.Info);
+			}
 
 			TooltipHandler.Patch(monitor, helper, harmony);
 		}
