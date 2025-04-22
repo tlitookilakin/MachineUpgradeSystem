@@ -1,0 +1,19 @@
+﻿{
+	"item.steelUpgrade.name": "铁制升级",
+	"item.steelUpgrade.desc": "将基础机械升级为铁制机械.",
+	"item.goldUpgrade.name": "金制升级",
+	"item.goldUpgrade.desc": "将铁制机械升级为金制机械.",
+	"item.diamondUpgrade.name": "钻石升级",
+	"item.diamondUpgrade.desc": "将金制机械升级为钻石制机械.",
+	"item.iridiumUpgrade.name": "铱制升级",
+	"item.iridiumUpgrade.desc": "将钻石机械升级为铱制机械.",
+	"item.radioactiveUpgrade.name": "放射性升级",
+	"item.radioactiveUpgrade.desc": "将铱制机械升级为放射性机械.",
+	"item.prismaticUpgrade.name": "五彩升级",
+	"item.prismaticUpgrade.desc": "将放射性机械升级为五彩机械.",
+	"cfg.itemid.name": "配方",
+	"cfg.inputcount.name": "需要材料数量",
+	"cfg.outputcount.name": "制造数量",
+	"ui.upgradable.text": "可升级",
+	"ui.failedUpgrade.text": "未解锁升级."
+} 
