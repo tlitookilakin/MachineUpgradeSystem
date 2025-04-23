@@ -1,8 +1,9 @@
-﻿using StardewModdingAPI;
+﻿using MachineUpgradeSystem.Framework;
+using StardewModdingAPI;
 
 namespace MachineUpgradeSystem
 {
-	public class ModEntry : Mod
+    public class ModEntry : Mod
 	{
 		internal static ITranslationHelper I18N = null!;
 

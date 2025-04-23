@@ -1,8 +1,9 @@
-﻿using StardewModdingAPI;
+﻿using MachineUpgradeSystem.Integration;
+using StardewModdingAPI;
 
 namespace MachineUpgradeSystem
 {
-	public class Config
+    public class Config
 	{
 		public static Config config => _config ??= Helper.ReadConfig<Config>();
 		private static Config? _config;
