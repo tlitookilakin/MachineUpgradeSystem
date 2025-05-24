@@ -1,4 +1,5 @@
 ﻿using MachineUpgradeSystem.Framework;
+using MachineUpgradeSystem.Integration;
 using StardewModdingAPI;
 
 namespace MachineUpgradeSystem
