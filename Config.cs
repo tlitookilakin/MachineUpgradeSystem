@@ -35,6 +35,8 @@ namespace MachineUpgradeSystem
 
 		public Dictionary<string, Ingredient> Recipes { get; set; } = new();
 
+		public bool AutomateIntegration { get; set; } = true;
+
 		public Config()
 		{
 

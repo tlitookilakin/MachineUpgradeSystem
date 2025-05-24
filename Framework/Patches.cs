@@ -38,13 +38,13 @@ namespace MachineUpgradeSystem.Framework
                     typeof(InventoryMenu).GetMethod(nameof(InventoryMenu.rightClick)),
                     transpiler: new(typeof(Patches), nameof(InjectInventoryUpgrade))
                 );
-            }
+
+				TooltipHandler.Patch(monitor, helper, harmony);
+			}
             else
             {
                 monitor.Log("Some features are not supported on android and will be disabled!", LogLevel.Info);
             }
-
-            TooltipHandler.Patch(monitor, helper, harmony);
         }
 
         // TODO handle transformation to other types
@@ -53,7 +53,7 @@ namespace MachineUpgradeSystem.Framework
             var farmer = SObject.autoLoadFrom is null ? who : null;
             Item obj = __instance;
 
-            if (ModUtilities.TryApplyUpgradeTo(ref obj, dropInItem, __instance.Location, farmer, probe, true, out __state, out var notif))
+            if (ModUtilities.TryApplyUpgradeTo(ref obj, dropInItem, __instance.Location, farmer, probe, false, out __state, out var notif))
             {
                 if (!probe)
                 {
