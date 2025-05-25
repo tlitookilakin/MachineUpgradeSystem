@@ -311,16 +311,22 @@ namespace MachineUpgradeSystem.Framework
 					target.ItemId = created.ItemId;
 					target.ResetParentSheetIndex();
 					target.Name = created.Name;
+					if (target is SObject obj)
+						obj.Price = ((SObject)created).Price;
 				}
 				else if (!objectOnly || created is SObject)
 				{
 					var id = created.ItemId;
 					var name = created.Name;
+					var obj = created as SObject;
+					var price = obj is not null ? obj.Price : 0;
 					created.CopyFieldsFrom(target);
 					created.ItemId = id;
 					created.Name = name;
 					created.Stack = target.Stack;
 					created.resetState();
+					if (obj is not null)
+						obj.Price = price;
 					target = created;
 				}
 				else
