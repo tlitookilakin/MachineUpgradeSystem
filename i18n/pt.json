@@ -1,0 +1,19 @@
+﻿{
+	"item.steelUpgrade.name": "Melhoria de Aço",
+	"item.steelUpgrade.desc": "Melhora máquinas básicas para o nível de aço.",
+	"item.goldUpgrade.name": "Melhoria de Ouro",
+	"item.goldUpgrade.desc": "Melhora máquinas de aço para o nível de ouro.",
+	"item.diamondUpgrade.name": "Melhoria de Diamante",
+	"item.diamondUpgrade.desc": "Melhora máquinas de ouro para o nível de diamante.",
+	"item.iridiumUpgrade.name": "Melhoria de Irídio",
+	"item.iridiumUpgrade.desc": "Melhora máquinas de diamante para o nível de irídio.",
+	"item.radioactiveUpgrade.name": "Melhoria Radioativa",
+	"item.radioactiveUpgrade.desc": "Melhora máquinas de irídio para o nível radioativo.",
+	"item.prismaticUpgrade.name": "Melhoria Prismática",
+	"item.prismaticUpgrade.desc": "Melhora máquinas radioativas para o nível prismático.",
+	"cfg.itemid.name": "Ingrediente",
+	"cfg.inputcount.name": "Quantidade de Ingrediente",
+	"cfg.outputcount.name": "Quantidade Produzida",
+	"ui.upgradable.text": "Pode ser aprimorada!",
+	"ui.failedUpgrade.text": "Aprimoramento não desbloqueado."
+}
